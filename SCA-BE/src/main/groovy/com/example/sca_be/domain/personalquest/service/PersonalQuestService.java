@@ -398,6 +398,8 @@ public class PersonalQuestService {
         QuestDetailResponse.SubmissionInfo submissionInfo = null;
         if (assignment.getSubmission() != null) {
             Submission submission = assignment.getSubmission();
+            log.info("[퀘스트 상세] Submission 조회 - submissionId: {}, attachmentUrl: {}", 
+                    submission.getSubmissionId(), submission.getAttachmentUrl());
             submissionInfo = QuestDetailResponse.SubmissionInfo.builder()
                     .submissionId(submission.getSubmissionId())
                     .studentContent(submission.getStudentContent())
@@ -405,6 +407,9 @@ public class PersonalQuestService {
                     .submittedAt(submission.getSubmittedAt())
                     .comment(submission.getComment())
                     .build();
+            log.info("[퀘스트 상세] SubmissionInfo 생성 완료 - attachmentUrl: {}", submissionInfo.getAttachmentUrl());
+        } else {
+            log.warn("[퀘스트 상세] Submission이 null입니다. assignmentId: {}", assignmentId);
         }
 
         return QuestDetailResponse.builder()
@@ -708,6 +713,8 @@ public class PersonalQuestService {
         }
 
         // Submission 생성
+        log.info("[퀘스트 제출] 요청 데이터 - content: {}, attachmentUrl: {}", 
+                request.getContent(), request.getAttachmentUrl());
         Submission submission = Submission.builder()
                 .questAssignment(assignment)
                 .studentContent(request.getContent())
@@ -715,6 +722,8 @@ public class PersonalQuestService {
                 .build();
 
         Submission savedSubmission = submissionRepository.save(submission);
+        log.info("[퀘스트 제출] 저장 완료 - submissionId: {}, attachmentUrl: {}", 
+                savedSubmission.getSubmissionId(), savedSubmission.getAttachmentUrl());
 
         // 상태 업데이트
         assignment.updateStatus(QuestStatus.SUBMITTED);

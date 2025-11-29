@@ -50,8 +50,20 @@ interface DetailedAssignment {
 function getFileType(url: string): 'image' | 'pdf' | 'other' {
   if (!url) return 'other';
   const lowerUrl = url.toLowerCase();
-  if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp)(\?|$)/i)) return 'image';
-  if (lowerUrl.match(/\.pdf(\?|$)/i)) return 'pdf';
+  // 이미지 확장자 체크 (쿼리 파라미터나 해시 제거 후 체크)
+  const urlWithoutQuery = lowerUrl.split('?')[0].split('#')[0];
+  
+  // 확장자로 파일 타입 판단
+  if (urlWithoutQuery.match(/\.(jpg|jpeg|png|gif|webp)$/i)) return 'image';
+  if (urlWithoutQuery.match(/\.pdf$/i)) return 'pdf';
+  
+  // S3 경로로 파일 타입 추론 (이미지 업로드 서비스는 'images/' 폴더에 저장)
+  if (lowerUrl.includes('/images/')) return 'image';
+  if (lowerUrl.includes('/documents/') || lowerUrl.includes('/uploads/')) {
+    // documents 폴더는 PDF일 가능성이 높지만, 확장자로 확인하는 것이 더 정확
+    return 'other';
+  }
+  
   return 'other';
 }
 
@@ -157,6 +169,9 @@ export function QuestApprovalPageNew() {
       }
 
       const data = await response.json();
+      console.log('[퀘스트 상세] 전체 응답 데이터:', data);
+      console.log('[퀘스트 상세] submission 데이터:', data.data?.submission);
+      console.log('[퀘스트 상세] attachment_url:', data.data?.submission?.attachment_url);
       setSelectedQuestDetail(data.data);
 
     } catch (err) {
@@ -371,9 +386,11 @@ export function QuestApprovalPageNew() {
                 {/* Attachment */}
                 <div className="mt-3">
                   <p className="text-sm text-gray-600 mb-2 font-medium">첨부 파일</p>
-                  {selectedQuestDetail.submission.attachment_url ? (() => {
+                  {selectedQuestDetail.submission?.attachment_url ? (() => {
                     const fileUrl = selectedQuestDetail.submission.attachment_url!;
+                    console.log('[퀘스트 승인] 첨부파일 URL:', fileUrl);
                     const fileType = getFileType(fileUrl);
+                    console.log('[퀘스트 승인] 감지된 파일 타입:', fileType);
                     const fileName = getFileName(fileUrl);
 
                     if (fileType === 'image') {
@@ -390,7 +407,12 @@ export function QuestApprovalPageNew() {
                                 src={fileUrl}
                                 alt="첨부파일 미리보기"
                                 className="max-w-full max-h-[400px] object-contain shadow-md rounded-lg"
+                                crossOrigin="anonymous"
+                                onLoad={() => {
+                                  console.log('[퀘스트 승인] 이미지 로드 성공:', fileUrl);
+                                }}
                                 onError={(e) => {
+                                  console.error('[퀘스트 승인] 이미지 로드 실패:', fileUrl, e);
                                   const target = e.target as HTMLImageElement;
                                   target.style.display = 'none';
                                   const parent = target.parentElement;
@@ -403,6 +425,7 @@ export function QuestApprovalPageNew() {
                                           </svg>
                                         </div>
                                         <p class="text-sm font-medium">이미지를 불러올 수 없습니다</p>
+                                        <p class="text-xs text-gray-400 mt-1">URL: ${fileUrl.substring(0, 50)}...</p>
                                         <a href="${fileUrl}" target="_blank" class="text-blue-600 hover:text-blue-700 hover:underline text-sm font-medium">
                                           직접 열기 →
                                         </a>
