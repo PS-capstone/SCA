@@ -161,7 +161,7 @@ DROP TABLE IF EXISTS raids;
 CREATE TABLE raids (
   raid_id INT NOT NULL AUTO_INCREMENT, -- Primary Key
   teacher_id INT, -- 교사 id (NULL 허용: ON DELETE SET NULL을 위해)
-  class_id INT NOT NULL, -- 학급 id
+  class_id INT, -- 학급 id (NULL 허용: ON DELETE SET NULL을 위해)
   raid_name VARCHAR(120) NOT NULL, -- 레이드 제목
   boss_type ENUM('ZELUS_INDUSTRY', 'KRAKEN') NOT NULL,
   difficulty ENUM('LOW', 'MEDIUM', 'HIGH') NOT NULL, -- 난이도
