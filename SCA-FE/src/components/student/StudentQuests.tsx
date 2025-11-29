@@ -160,8 +160,9 @@ export function StudentQuests() {
   const handleSubmit = async () => {
     if (!selectedQuest || !access_token) return;
 
-    if (!submitText.trim()) {
-      setSubmitError('수행 내용을 입력해주세요.');
+    // 수행 내용이나 첨부파일 중 하나는 필수
+    if (!submitText.trim() && attachedFiles.length === 0) {
+      setSubmitError('수행 내용이나 첨부파일 중 하나는 필수입니다.');
       return;
     }
 
