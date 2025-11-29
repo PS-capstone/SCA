@@ -29,6 +29,7 @@ const AnimatedSprite = styled.div<{ $scale: number, $totalFrames: number, $durat
     
     /* 3. 확대/축소 및 픽셀 아트 설정 */
     transform: scale(${(props) => props.$scale});
+    transform-origin: center center;
     image-rendering: pixelated; 
 
 /* 4. 애니메이션 속성 동적 적용 (steps와 duration) */

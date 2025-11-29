@@ -406,7 +406,13 @@ export function StudentCollection() {
 
                 <div className="sunken-panel" style={{ height: "400px", overflowY: "scroll", padding: "10px", background: "#fff" }}>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "10px" }}>
-                    {fishList.map((fish) => (
+                    {fishList.map((fish) => {
+                      // 모든 박스를 동일한 크기로 통일
+                      const isLegendary = fish.grade === 'LEGENDARY';
+                      const spriteScale = isLegendary ? 0.5 : 2;
+                      const spriteAreaHeight = "70px";
+                      
+                      return (
                       <div
                         key={fish.fish_id}
                         className="window"
@@ -416,13 +422,32 @@ export function StudentCollection() {
                           opacity: fish.is_owned ? 1 : 0.5,
                           backgroundColor: fish.is_owned ? "#fff" : "#eee",
                           height: "auto",
-                          minHeight: fish.fish_id === 12 ? "140px" : "120px"
+                          minHeight: "140px",
+                          overflow: "visible"
                         }}
                       >
-                        <div className="window-body" style={{ textAlign: "center", padding: "8px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: fish.fish_id === 12 ? "120px" : "100px" }}>
-                          <div style={{ height: fish.fish_id === 12 ? "70px" : "50px", display: "flex", alignItems: "flex-end", justifyContent: "center", marginBottom: "5px", objectFit: "contain", flexShrink: 0, overflow: "visible" }}>
+                        <div className="window-body" style={{ textAlign: "center", padding: "8px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "120px", overflow: "visible" }}>
+                          <div style={{ 
+                            minHeight: spriteAreaHeight, 
+                            height: spriteAreaHeight,
+                            position: "relative",
+                            display: "flex", 
+                            alignItems: "center", 
+                            justifyContent: "center", 
+                            marginBottom: "5px", 
+                            padding: isLegendary ? "10px" : "0",
+                            objectFit: "contain", 
+                            flexShrink: 0, 
+                            overflow: "visible" 
+                          }}>
                             {fish.is_owned ? (
-                              renderFishSprite(fish, fish.fish_id === 12 ? 0.85 : fish.grade === 'LEGENDARY' ? 1.0 : 2)
+                              <div style={{
+                                position: fish.fish_id === 9 ? "absolute" : "relative",
+                                left: fish.fish_id === 9 ? "50%" : "auto",
+                                transform: fish.fish_id === 9 ? "translateX(-50%)" : "none"
+                              }}>
+                                {renderFishSprite(fish, spriteScale)}
+                              </div>
                             ) : (
                               <span style={{ fontSize: "30px" }}>❓</span>
                             )}
@@ -435,7 +460,8 @@ export function StudentCollection() {
                           </div>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </>
