@@ -312,7 +312,9 @@ export function StudentGacha() {
                 <div style={{ color: "red", fontWeight: "bold", animation: "blink 1s infinite" }}>NEW!</div>
               )}
 
-              <h3 style={{ margin: "5px 0" }}>{resultFish.fish_name}</h3>
+              <h3 style={{ margin: "5px 0", wordBreak: "keep-all", fontFamily: "inherit" }}>
+                {resultFish.fish_name || '알 수 없는 물고기'}
+              </h3>
               <div style={{ marginBottom: "10px" }}>{getRarityText(resultFish.grade)}</div>
 
               <p style={{ fontSize: "12px", color: "#666", marginBottom: "15px" }}>
