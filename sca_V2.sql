@@ -293,7 +293,7 @@ CREATE TABLE ai_learning_logs (
   id BIGINT NOT NULL AUTO_INCREMENT, -- Primary Key
   assignment_id INT NOT NULL, -- 퀘스트 할당 ID (quest_assignments)
   student_id INT NOT NULL, -- 학생 ID
-  difficulty ENUM('EASY', 'BASIC', 'MEDIUM', 'HARD', 'VERY_HARD') NOT NULL, -- 퀘스트 난이도
+  difficulty INT NOT NULL, -- 퀘스트 난이도 (1=EASY, 2=BASIC, 3=MEDIUM, 4=HARD, 5=VERY_HARD)
   cognitive_score INT NOT NULL, -- 인지과정 점수
   effort_score INT NOT NULL, -- 예상 노력 점수
   ai_coral INT NOT NULL, -- AI 추천 코랄
