@@ -245,7 +245,7 @@ export function StudentQuests() {
 
       // 퀘스트 제출
       const payload = {
-        content: submitText || null,
+        content: submitText.trim() || null, // 빈 문자열은 null로 변환
         attachment_url: attachmentUrl || null
       };
 
