@@ -3,10 +3,16 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# package.json과 package-lock.json 복사
 COPY package*.json ./
-RUN npm install
 
+# 의존성 설치
+RUN npm ci --legacy-peer-deps
+
+# 소스 코드 복사
 COPY . .
+
+# 빌드 실행
 RUN npm run build
 
 # 2단계: nginx로 정적파일 서빙
