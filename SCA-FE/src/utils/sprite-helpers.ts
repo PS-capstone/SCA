@@ -31,13 +31,13 @@ export const FISH_ICONS: { [key: number]: {
     // 4. 복어 - Pufferfish
     4: { column: 3, row: 1 },
 
-    // 5. 흰동가리 - 구피 스프라이트 사용
-    5: { column: 8, row: 1 },
+    // 5. 흰동가리 - clown fish
+    5: { column: 7, row: 0 },
 
-    // 6. 금붕어 - clown fish
-    6: { column: 7, row: 0 },
+    // 6. 금붕어 - blue tang
+    6: { column: 8, row: 1 },
 
-    // 7. 구피 - 흰동가리 스프라이트 사용
+    // 7. 구피 - Sea Angel
     7: { column: 9, row: 4 },
 
     // 8. 바다거북 - turtle (animated)
@@ -92,7 +92,7 @@ export const FISH_ICONS: { [key: number]: {
         }
     },
 
-    // 12. 바다해룡 - sea serpent (animated)
+    // 12. 심해해룡 - sea serpent (animated)
     12: {
         column: 0,
         row: 0,

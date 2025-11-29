@@ -85,14 +85,24 @@ export function StudentCollection() {
         const resJson = await response.json();
         const data = resJson.data;
 
-        const converted: UIFish[] = (data.collected_fish as AquariumFishItem[]).map(item => ({
-          fish_id: item.fish_id,
-          fish_name: item.fish_name,
-          grade: item.grade as FishGrade,
-          current_count: item.fish_count,
-          is_owned: true,
-          size: getFishSize(item.grade as FishGrade)
-        }));
+        const converted: UIFish[] = (data.collected_fish as AquariumFishItem[]).map(item => {
+          // 흰동가리(fish_id: 5)와 금붕어(fish_id: 6) 이름 교체
+          let fishName = item.fish_name;
+          if (item.fish_id === 5) {
+            fishName = "금붕어";
+          } else if (item.fish_id === 6) {
+            fishName = "흰동가리";
+          }
+          
+          return {
+            fish_id: item.fish_id,
+            fish_name: fishName,
+            grade: item.grade as FishGrade,
+            current_count: item.fish_count,
+            is_owned: true,
+            size: getFishSize(item.grade as FishGrade)
+          };
+        });
 
         setFishList(converted);
         setStats({ current: converted.length, total: 0 }); // 수족관은 종류 수만 표시하거나 총 마리수 표시
@@ -104,14 +114,24 @@ export function StudentCollection() {
         const resJson = await response.json();
         const data = resJson.data;
 
-        const converted: UIFish[] = (data.fish_list as EncyclopediaFishItem[]).map(item => ({
-          fish_id: item.fish_id,
-          fish_name: item.fish_name,
-          grade: item.grade as FishGrade,
-          current_count: item.fish_count,
-          is_owned: item.is_collected,
-          size: getFishSize(item.grade as FishGrade)
-        }));
+        const converted: UIFish[] = (data.fish_list as EncyclopediaFishItem[]).map(item => {
+          // 흰동가리(fish_id: 5)와 금붕어(fish_id: 6) 이름 교체
+          let fishName = item.fish_name;
+          if (item.fish_id === 5) {
+            fishName = "금붕어";
+          } else if (item.fish_id === 6) {
+            fishName = "흰동가리";
+          }
+          
+          return {
+            fish_id: item.fish_id,
+            fish_name: fishName,
+            grade: item.grade as FishGrade,
+            current_count: item.fish_count,
+            is_owned: item.is_collected,
+            size: getFishSize(item.grade as FishGrade)
+          };
+        });
 
         setFishList(converted);
         setStats({ current: data.collected_count, total: data.total_fish });
@@ -406,13 +426,7 @@ export function StudentCollection() {
 
                 <div className="sunken-panel" style={{ height: "400px", overflowY: "scroll", padding: "10px", background: "#fff" }}>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "10px" }}>
-                    {fishList.map((fish) => {
-                      // 모든 박스를 동일한 크기로 통일
-                      const isLegendary = fish.grade === 'LEGENDARY';
-                      const spriteScale = isLegendary ? 0.5 : 2;
-                      const spriteAreaHeight = "70px";
-                      
-                      return (
+                    {fishList.map((fish) => (
                       <div
                         key={fish.fish_id}
                         className="window"
@@ -420,48 +434,26 @@ export function StudentCollection() {
                         style={{
                           cursor: fish.is_owned ? "pointer" : "default",
                           opacity: fish.is_owned ? 1 : 0.5,
-                          backgroundColor: fish.is_owned ? "#fff" : "#eee",
-                          height: "auto",
-                          minHeight: "140px",
-                          overflow: "visible"
+                          backgroundColor: fish.is_owned ? "#fff" : "#eee"
                         }}
                       >
-                        <div className="window-body" style={{ textAlign: "center", padding: "8px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "120px", overflow: "visible" }}>
-                          <div style={{ 
-                            minHeight: spriteAreaHeight, 
-                            height: spriteAreaHeight,
-                            position: "relative",
-                            display: "flex", 
-                            alignItems: "center", 
-                            justifyContent: "center", 
-                            marginBottom: "5px", 
-                            padding: isLegendary ? "10px" : "0",
-                            objectFit: "contain", 
-                            flexShrink: 0, 
-                            overflow: "visible" 
-                          }}>
+                        <div className="window-body" style={{ textAlign: "center", padding: "5px" }}>
+                          <div style={{ height: "50px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "5px", objectFit: "contain" }}>
                             {fish.is_owned ? (
-                              <div style={{
-                                position: fish.fish_id === 9 ? "absolute" : "relative",
-                                left: fish.fish_id === 9 ? "50%" : "auto",
-                                transform: fish.fish_id === 9 ? "translateX(-50%)" : "none"
-                              }}>
-                                {renderFishSprite(fish, spriteScale)}
-                              </div>
+                              renderFishSprite(fish, 2)
                             ) : (
                               <span style={{ fontSize: "30px" }}>❓</span>
                             )}
                           </div>
-                          <div style={{ fontSize: "11px", fontWeight: "bold", wordBreak: "break-word", lineHeight: "1.3", display: "flex", alignItems: "center", justifyContent: "center", flex: 1, padding: "2px 0" }}>
+                          <div style={{ fontSize: "12px", fontWeight: "bold", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {fish.fish_name}
                           </div>
-                          <div style={{ fontSize: "9px", marginTop: "4px", color: getGradeColor(fish.grade), flexShrink: 0 }}>
+                          <div style={{ fontSize: "10px", marginTop: "2px", color: getGradeColor(fish.grade) }}>
                             {fish.grade}
                           </div>
                         </div>
                       </div>
-                      );
-                    })}
+                    ))}
                   </div>
                 </div>
               </>
