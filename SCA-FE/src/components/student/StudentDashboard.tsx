@@ -124,7 +124,11 @@ export function StudentDashboard() {
             return;
         }
 
-        const wsUrl = `ws://localhost:8080/ws/students/${user.id}/notifications?token=${currentToken}`;
+        // 현재 호스트에 맞춰서 WebSocket URL 동적 생성
+        const host = window.location.hostname;
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsPort = window.location.port ? `:${window.location.port === '80' ? '8080' : window.location.port}` : ':8080';
+        const wsUrl = `${wsProtocol}//${host}${wsPort}/ws/students/${user.id}/notifications?token=${currentToken}`;
 
         console.log(`웹소켓 연결 시도: ${wsUrl}`);
         ws = new WebSocket(wsUrl);
