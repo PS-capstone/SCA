@@ -217,11 +217,11 @@ export function StudentDashboard() {
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   return (
-    <div className="p-4 space-y-6 min-h-screen pb-20 max-w-screen-xl mx-auto" style={{ minHeight: "100vh" }}>
+    <div className="p-4 space-y-3 min-h-screen pb-20 max-w-screen-xl mx-auto" style={{ minHeight: "100vh" }}>
       {/* 1. 이벤트 & 공지 윈도우 */}
       <div className="window" style={{ width: "100%" }}>
         <div className="title-bar">
-          <div className="title-bar-text">&nbsp;이벤트 & 공지</div>
+          <div className="title-bar-text">이벤트 & 공지</div>
           <div className="title-bar-controls">
             <button aria-label="Minimize" />
             <button aria-label="Maximize" />
@@ -254,7 +254,7 @@ export function StudentDashboard() {
       {/* 2. 레이드 현황 윈도우 */}
       <div className="window" style={{ width: "100%" }}>
         <div className="title-bar">
-          <div className="title-bar-text">&nbsp;현재 레이드: {active_raid ? active_raid.raid_name : '진행 중 아님'}</div>
+          <div className="title-bar-text">현재 레이드: {active_raid ? active_raid.raid_name : '진행 중 아님'}</div>
           <div className="title-bar-controls">
             <button aria-label="Help" />
           </div>
@@ -315,11 +315,11 @@ export function StudentDashboard() {
       {/* 3. 단체 퀘스트 윈도우 */}
       <div className="window" style={{ width: "100%" }}>
         <div className="title-bar">
-          <div className="title-bar-text">&nbsp;단체 퀘스트 현황</div>
+          <div className="title-bar-text">단체 퀘스트 현황</div>
         </div>
         <div className="window-body">
           <p style={{ marginBottom: "10px" }}>우리 반 달성률</p>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {group_quests.length > 0 ? (
               group_quests.map((quest) => (
                 <fieldset key={quest.quest_id} style={{ padding: "10px", marginBottom: "10px" }}>
@@ -359,7 +359,7 @@ export function StudentDashboard() {
       {/* 4. 내 정보 및 로그 윈도우 */}
       <div className="window" style={{ width: "100%" }}>
         <div className="title-bar">
-          <div className="title-bar-text">&nbsp;내 정보</div>
+          <div className="title-bar-text">내 정보</div>
         </div>
         <div className="window-body">
           <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>

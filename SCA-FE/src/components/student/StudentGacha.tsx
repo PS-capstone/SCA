@@ -7,10 +7,12 @@ import { FishIcon } from '../FishIcon';
 import { FishAnimation } from '../FishAnimation';
 import { FISH_ICONS } from '../../utils/sprite-helpers';
 
+type FishGrade = 'COMMON' | 'RARE' | 'LEGENDARY';
+
 interface Fish {
   fish_id: number;
   fish_name: string;
-  grade: 'COMMON' | 'RARE' | 'LEGENDARY';
+  grade: FishGrade;
   is_new?: boolean;
   current_count: number;
   image_url?: string;
@@ -18,6 +20,14 @@ interface Fish {
 
 const BASE_SPRITE_SIZE = 24;
 const MODAL_SCALE = 3;
+
+const getFishSize = (grade: FishGrade) => {
+  switch (grade) {
+    case 'LEGENDARY': return 1;
+    case 'RARE': return 2;
+    default: return 3;
+  }
+};
 
 export function StudentGacha() {
   const { user, isAuthenticated, userType, access_token } = useAuth();
@@ -158,24 +168,16 @@ export function StudentGacha() {
   const getRarityBadge = (grade: Fish['grade']) => {
     switch (grade) {
       case 'COMMON':
-        return <Badge className="bg-gray-400">커먼</Badge>;
+        return <Badge className="bg-gray-400">COMMON</Badge>;
       case 'RARE':
-        return <Badge className="bg-blue-500">레어</Badge>;
+        return <Badge className="bg-blue-500">RARE</Badge>;
       case 'LEGENDARY':
-        return <Badge className="bg-yellow-600">레전더리</Badge>;
+        return <Badge className="bg-yellow-600 animate-pulse">LEGENDARY</Badge>;
     }
   };
 
-  const getRarityText = (grade: Fish['grade']) => {
-    switch (grade) {
-      case 'COMMON': return <span style={{ color: "gray", fontWeight: "bold" }}>[커먼]</span>;
-      case 'RARE': return <span style={{ color: "blue", fontWeight: "bold" }}>[레어]</span>;
-      case 'LEGENDARY': return <span style={{ color: "#ffd700", fontWeight: "bold" }}>[레전더리]</span>;
-    }
-  };
-
-  const renderGachaFish = (fish: Fish) => {
-    const scale = MODAL_SCALE;
+  const renderGachaFish = (fish: Fish, scaleOverride?: number) => {
+    const scale = scaleOverride ?? MODAL_SCALE;
     const finalSize = scale * BASE_SPRITE_SIZE;
 
     const spriteInfo = FISH_ICONS[fish.fish_id];
@@ -199,7 +201,7 @@ export function StudentGacha() {
 
     return (
       <div style={{
-        width: `${finalSize}px`,
+        /* width: `${finalSize}px`, */
         height: `${finalSize}px`,
         display: 'flex',
         alignItems: 'center',
@@ -212,12 +214,12 @@ export function StudentGacha() {
 
   return (
     <>
-      <div className="p-4 space-y-6 pb-20 max-w-screen-xl mx-auto">
+      <div className="p-4 space-y-4 pb-20 max-w-screen-xl mx-auto">
 
         {/* 가챠 머신 윈도우 */}
         <div className="window" style={{ width: "100%" }}>
           <div className="title-bar">
-            <div className="title-bar-text">&nbsp;가챠 머신</div>
+            <div className="title-bar-text">가챠 머신</div>
             <div className="title-bar-controls">
               <button aria-label="Help" onClick={() => setIsProbabilityOpen(true)} />
             </div>
@@ -303,9 +305,9 @@ export function StudentGacha() {
               <div className="sunken-panel" style={{
                 width: "120px", height: "120px", margin: "0 auto 15px auto",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                background: resultFish.grade === 'LEGENDARY' ? '#fffacd' : '#fff'
+                background: resultFish.grade === 'LEGENDARY' ? '#fffacd' : '#fff', overflow: "hidden"
               }}>
-                {renderGachaFish(resultFish)}
+                {renderGachaFish(resultFish, getFishSize(resultFish.grade as FishGrade))}
               </div>
 
               {resultFish.is_new && (
@@ -315,7 +317,7 @@ export function StudentGacha() {
               <h3 style={{ margin: "5px 0", wordBreak: "keep-all", fontFamily: "inherit" }}>
                 {resultFish.fish_name || '알 수 없는 물고기'}
               </h3>
-              <div style={{ marginBottom: "10px" }}>{getRarityText(resultFish.grade)}</div>
+              <div style={{ marginBottom: "10px" }}>{getRarityBadge(resultFish.grade)}</div>
 
               <p style={{ fontSize: "12px", color: "#666", marginBottom: "15px" }}>
                 (현재 보유: {resultFish.current_count}마리)

@@ -4,7 +4,8 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import { Users, Plus, Target, Loader2 } from "lucide-react";
+import { Users, Target, Loader2, ClipboardList, Gift, Plus, Info } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AppContext";
 import { get, post } from "../../utils/api";
@@ -30,6 +31,7 @@ export function GroupQuestCreatePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [classInfo, setClassInfo] = useState<ClassInfoResponse | null>(null);
   const [templates, setTemplates] = useState<QuestTemplate[]>([]);
+  const [showRewardGuide, setShowRewardGuide] = useState(false);
 
   const [questData, setQuestData] = useState({
     title: "",
@@ -56,7 +58,6 @@ export function GroupQuestCreatePage() {
           const data = json.data;
           setClassInfo(data);
           setTemplates(data.templates);
-          // 초기값 설정
           setQuestData(prev => ({
             ...prev,
             total_count: data.total_students,
@@ -131,199 +132,254 @@ export function GroupQuestCreatePage() {
   }
 
   return (
-    <>
+    <div className="flex flex-col h-full bg-gray-50/50">
       {/* Header */}
-      <div className="border-b-2 border-gray-300 p-6">
-        <div className="flex items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-black">단체 퀘스트 등록</h1>
-            <p className="text-gray-600 mt-1">
-              {classInfo?.class_name} ({classInfo?.total_students}명) 학생들에게 할당할 퀘스트를 등록합니다.
-            </p>
-          </div>
+      <header className="border-b border-gray-200 bg-white p-4 md:px-6 md:py-5 shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">단체 퀘스트 등록</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            {classInfo?.class_name} 학생 전원이 참여하는 협동 퀘스트를 생성합니다.
+          </p>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="p-6 max-w-4xl">
-        <div className="space-y-6">
-          {/* 템플릿 선택 */}
-          <Card className="border-2 border-gray-300">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-black whitespace-nowrap">
-                <Target className="w-5 h-5 flex-shrink-0" />
-                <span>퀘스트 템플릿 선택</span>
+      <main className="flex-1 overflow-y-auto p-6">
+        <div className="max-w-4xl mx-auto space-y-4">
+          {/* 1. 템플릿 선택 */}
+          <Card className="border border-gray-200 shadow-sm">
+            <CardHeader className="border-b border-gray-100 py-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <ClipboardList className="w-5 h-5 text-gray-500" />
+                템플릿 선택
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 sm:!grid-cols-2 gap-4">
                 {templates.map((template) => (
                   <div
                     key={template.code}
-                    className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${questData.template === template.name
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-300 hover:border-gray-400'
+                    className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-sm ${questData.template === template.code
+                      ? 'border-green-600 bg-green-50/30 ring-1 ring-green-600'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
                       }`}
                     onClick={() => handleTemplateSelect(template)}
                   >
-                    <h3 className="font-medium text-black">{template.name}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{template.description}</p>
+                    <h4 className="text-base font-bold text-gray-900 mb-1">{template.name}</h4>
+                    <p className="text-sm text-gray-500 leading-relaxed">{template.description}</p>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
 
-          {/* 퀘스트 기본 정보 */}
-          <Card className="border-2 border-gray-300">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-black whitespace-nowrap">
-                <Users className="w-5 h-5 flex-shrink-0" />
-                <span>상세 정보 입력</span>
+          {/* 2. 상세 정보 */}
+          <Card className="border border-gray-200 shadow-sm">
+            <CardHeader className="border-b border-gray-100 py-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Target className="w-5 h-5 text-gray-500" />
+                퀘스트 상세 정보
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-6 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-black font-medium">퀘스트 제목 *</Label>
+                <Label className="text-base font-semibold">퀘스트 제목 <span className="text-red-500">*</span></Label>
                 <Input
                   id="title"
                   value={questData.title}
                   onChange={(e) => setQuestData({ ...questData, title: e.target.value })}
+                  className="h-11 bg-white"
                   placeholder="퀘스트 제목을 입력하세요"
-                  className="border-2 border-gray-300 rounded-lg"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-black font-medium">퀘스트 설명</Label>
+                <Label className="text-base font-semibold">퀘스트 설명</Label>
                 <Textarea
                   id="content"
                   value={questData.content}
                   onChange={(e) => setQuestData({ ...questData, content: e.target.value })}
+                  className="min-h-[100px] bg-white resize-none text-sm leading-relaxed"
                   placeholder="퀘스트에 대한 자세한 설명을 입력하세요"
-                  className="border-2 border-gray-300 rounded-lg min-h-20"
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="reward_coral" className="text-black font-medium">보상: 코랄</Label>
-                  <Input
-                    id="reward_coral"
-                    value={questData.reward_coral}
-                    onChange={(e) => setQuestData({ ...questData, reward_coral: e.target.value })}
-                    placeholder="예: 30"
-                    className="border-2 border-gray-300 rounded-lg"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reward_research" className="text-black font-medium">보상: 탐사데이터</Label>
-                  <Input
-                    id="reward_research_data"
-                    type="number"
-                    value={questData.reward_research_data}
-                    onChange={(e) => setQuestData({ ...questData, reward_research_data: e.target.value })}
-                    placeholder="예: 20"
-                    className="border-2 border-gray-300 rounded-lg"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="deadline" className="text-black font-medium">마감일 *</Label>
+                  <Label htmlFor="deadline" className="text-sm font-medium text-gray-700">마감일 <span className="text-red-500">*</span></Label>
                   <Input
                     id="deadline"
                     type="date"
                     value={questData.deadline}
                     onChange={(e) => setQuestData({ ...questData, deadline: e.target.value })}
-                    className="border-2 border-gray-300 rounded-lg"
+                    className="h-11 bg-white"
+                  />
+                </div>
+                {/* 대상 정보 표시 (Read-only) */}
+                <div className="space-y-2">
+                  <Label className="text-base font-semibold text-gray-500">참여 대상</Label>
+                  <div className="h-11 flex items-center px-3 bg-gray-50 border border-gray-200 rounded-md text-gray-600 text-sm">
+                    <Users className="w-4 h-4 mr-2" />
+                    {classInfo?.class_name} 전체 학생 ({questData.total_count}명)
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 3. 보상 및 조건 */}
+          <Card className="border border-gray-200 shadow-sm">
+            <CardHeader className="border-b border-gray-100 py-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Gift className="w-5 h-5 text-gray-500" />
+                보상 및 완료 조건
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 border-gray-200 text-gray-600 hover:bg-gray-50"
+                onClick={() => setShowRewardGuide(true)}
+              >
+                <Info className="w-3.5 h-3.5 mr-1.5" />
+                보상 가이드
+              </Button>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:!grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-base font-semibold">보상: 코랄</Label>
+                  <Input
+                    type="number"
+                    className="h-11 bg-white"
+                    placeholder="예: 30"
+                    value={questData.reward_coral}
+                    onChange={(e) => setQuestData({ ...questData, reward_coral: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-base font-semibold">보상: 탐사데이터</Label>
+                  <Input
+                    type="number"
+                    className="h-11 bg-white"
+                    placeholder="예: 20"
+                    value={questData.reward_research_data}
+                    onChange={(e) => setQuestData({ ...questData, reward_research_data: e.target.value })}
                   />
                 </div>
               </div>
-            </CardContent>
-          </Card>
 
-          {/* 대상 정보 */}
-          <Card className="border-2 border-gray-300 bg-green-50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 text-green-800">
-                <Users className="w-5 h-5" />
-                <h3 className="font-medium">대상: 반 전체 학생</h3>
-              </div>
-              <p className="text-sm text-green-700 mt-1">
-                이 퀘스트는 반의 모든 학생에게 자동으로 할당됩니다.
-              </p>
-            </CardContent>
-          </Card>
+              <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 space-y-4">
+                <div className="flex justify-between items-center">
+                  <Label className="text-base font-bold text-gray-900">완료 조건 설정</Label>
+                  <span className="text-sm text-gray-500">전체 {questData.total_count}명 중</span>
+                </div>
 
-          {/* 완료 조건 설정 */}
-          <Card className="border-2 border-gray-300">
-            <CardHeader>
-              <CardTitle className="text-black flex items-center gap-2 whitespace-nowrap">
-                <Target className="w-5 h-5 flex-shrink-0" />
-                <span>완료 조건 설정</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-3">
-                  전체 {questData.total_count}명 중 몇 명이 완료해야 퀘스트를 성공으로 처리할지 설정하세요.
-                </p>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="totalStudents" className="text-black font-medium">전체 학생 수</Label>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
                     <Input
-                      id="totalStudents"
                       type="number"
-                      value={questData.total_count}
-                      disabled
-                      className="border-2 border-gray-300 rounded-lg bg-gray-100"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="requiredStudents" className="text-black font-medium">필요 완료 학생 수</Label>
-                    <Input
-                      id="requiredStudents"
-                      type="number"
+                      className="h-11 bg-white text-lg font-bold text-blue-600"
                       value={questData.required_count}
-                      onChange={(e) => setQuestData({ ...questData, required_count: parseInt(e.target.value) || 0 })}
-                      min="1"
                       max={questData.total_count}
-                      className="border-2 border-gray-300 rounded-lg"
+                      onChange={(e) => setQuestData({ ...questData, required_count: Number(e.target.value) })}
                     />
                   </div>
+                  <span className="text-gray-900 font-medium">명이 완료하면 퀘스트 성공</span>
                 </div>
 
-                <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    <strong>조건:</strong> {questData.required_count}명 / {questData.total_count}명 달성 시 완료 가능 (달성률 {questData.total_count > 0 ? Math.round((questData.required_count / questData.total_count) * 100) : 0}%)
-                  </p>
-                </div>
+                <p className="text-sm text-blue-600 bg-blue-50 p-2 rounded">
+                  * 예상 달성률: {questData.total_count > 0 ? Math.round((questData.required_count / questData.total_count) * 100) : 0}%
+                </p>
               </div>
             </CardContent>
           </Card>
 
-          {/* 액션 버튼들 */}
-          <div className="flex gap-3 pt-6 border-t-2 border-gray-300">
-            <Button
-              onClick={handleSubmit}
-              className="bg-black hover:bg-gray-800 text-white rounded-lg border-2 border-gray-300"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
-              단체 퀘스트 등록
-            </Button>
+          {/* Footer */}
+          <div className="flex justify-end gap-3 pt-4">
             <Button
               variant="outline"
+              size="lg"
+              className="px-8 border-gray-300"
               onClick={() => navigate('/teacher/quest')}
-              className="border-2 border-gray-300 rounded-lg hover:bg-gray-100"
             >
               취소
             </Button>
+            <Button
+              size="lg"
+              className="px-8 bg-black hover:bg-gray-800 text-white font-bold"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  등록 중...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4 mr-2" />
+                  단체 퀘스트 등록
+                </>
+              )}
+            </Button>
           </div>
         </div>
-      </div>
-    </>
+      </main>
+      {/* 보상 가이드 모달 */}
+          <Dialog open={showRewardGuide} onOpenChange={setShowRewardGuide}>
+            <DialogContent className="max-w-4xl">
+              <DialogHeader>
+                <DialogTitle>보상 가이드</DialogTitle>
+              </DialogHeader>
+              <div className="overflow-hidden rounded-lg border border-gray-200">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">템플릿</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">난이도</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">기본 코랄</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">기본 탐사데이터</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200 text-sm text-gray-700">
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">출석 체크</td>
+                      <td className="px-4 py-3"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">쉬움</span></td>
+                      <td className="px-4 py-3">20</td>
+                      <td className="px-4 py-3">50</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">과제 제출</td>
+                      <td className="px-4 py-3"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">쉬움</span></td>
+                      <td className="px-4 py-3">25</td>
+                      <td className="px-4 py-3">50</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">수업 참여</td>
+                      <td className="px-4 py-3"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">보통</span></td>
+                      <td className="px-4 py-3">30</td>
+                      <td className="px-4 py-3">100</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">학교 시험 점수 달성</td>
+                      <td className="px-4 py-3"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">어려움</span></td>
+                      <td className="px-4 py-3">45</td>
+                      <td className="px-4 py-3">400</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">기타</td>
+                      <td className="px-4 py-3"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">커스텀</span></td>
+                      <td className="px-4 py-3">자유 설정</td>
+                      <td className="px-4 py-3">자유 설정</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="flex justify-end mt-4">
+                <Button onClick={() => setShowRewardGuide(false)} className="bg-black text-white hover:bg-gray-800">확인</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+    </div>
   );
 }
