@@ -126,8 +126,11 @@ export async function apiCall(url: string, options: ApiCallOptions = {}): Promis
   
   // FormData가 아닌 경우에만 Content-Type 설정
   if (!isFormData) {
-    defaultHeaders['Content-Type'] = 'application/json';
+    defaultHeaders['Content-Type'] = 'application/json; charset=UTF-8';
   }
+  
+  // Accept-Charset 헤더 추가 (UTF-8 인코딩 명시)
+  defaultHeaders['Accept-Charset'] = 'UTF-8';
   
   // 사용자 정의 헤더 추가
   Object.assign(defaultHeaders, headers);

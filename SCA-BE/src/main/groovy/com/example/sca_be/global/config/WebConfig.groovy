@@ -33,16 +33,18 @@ class WebConfig implements WebMvcConfigurer {
             } else if (converter instanceof MappingJackson2HttpMessageConverter) {
                 MappingJackson2HttpMessageConverter jsonConverter = (MappingJackson2HttpMessageConverter) converter
                 jsonConverter.setDefaultCharset(StandardCharsets.UTF_8)
+                // JSON 응답의 Content-Type에 charset=UTF-8 명시적으로 포함
                 List<MediaType> mediaTypes = new ArrayList<>()
-                for (MediaType mt : jsonConverter.getSupportedMediaTypes()) {
-                    mediaTypes.add(new MediaType(mt.getType(), mt.getSubtype(), StandardCharsets.UTF_8))
-                }
+                mediaTypes.add(new MediaType("application", "json", StandardCharsets.UTF_8))
+                mediaTypes.add(new MediaType("application", "*+json", StandardCharsets.UTF_8))
                 jsonConverter.setSupportedMediaTypes(mediaTypes)
                 // Java 8 시간 타입 지원
                 ObjectMapper objectMapper = jsonConverter.getObjectMapper()
                 if (objectMapper != null) {
                     objectMapper.registerModule(new JavaTimeModule())
                     objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                    // 한글을 유니코드로 이스케이프하지 않도록 설정
+                    objectMapper.configure(com.fasterxml.jackson.core.JsonGenerator.Feature.ESCAPE_NON_ASCII, false)
                 }
             }
         }
@@ -56,6 +58,8 @@ class WebConfig implements WebMvcConfigurer {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         // UTF-8 인코딩 보장
         mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        // 한글을 유니코드로 이스케이프하지 않도록 설정
+        mapper.configure(com.fasterxml.jackson.core.JsonGenerator.Feature.ESCAPE_NON_ASCII, false)
         return mapper
     }
 }

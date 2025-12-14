@@ -1,3 +1,10 @@
+-- 문자셋 설정 (한글 인코딩 문제 해결)
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+SET character_set_client = utf8mb4;
+SET character_set_connection = utf8mb4;
+SET character_set_results = utf8mb4;
+
 -- FK 제약 조건 임시 비활성화
 SET FOREIGN_KEY_CHECKS = 0;
 
