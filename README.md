@@ -4,7 +4,7 @@
 
 ## 프로젝트 개요
 
-SCA(Student Class Assistant)는 학생의 학습 동기를 부여하고 교사의 학습 관리를 효율화하기 위해 개발된 웹 애플리케이션입니다. 게이미피케이션 요소(퀘스트, 가챠, 레이드)를 활용하여 학습 과정을 재미있고 체계적으로 관리할 수 있습니다.
+SCA(Smart Community Academy)는 학생의 학습 동기를 부여하고 교사의 학습 관리를 효율화하기 위해 개발된 웹 애플리케이션입니다. 게이미피케이션 요소(퀘스트, 가챠, 레이드)를 활용하여 학습 과정을 재미있고 체계적으로 관리할 수 있습니다.
 
 ## 주요 기능
 
@@ -77,11 +77,15 @@ SCA/
 ├── SCA-BE/                # Spring Boot 백엔드
 │   ├── src/main/groovy/
 │   │   └── com/example/sca_be/
-│   │       ├── domain/    # 도메인별 패키지
-│   │       │   ├── auth/  # 인증
-│   │       │   ├── quest/ # 퀘스트
-│   │       │   ├── gacha/ # 가챠
-│   │       │   └── raid/  # 레이드
+│   │       ├── domain/           # 도메인별 패키지
+│   │       │   ├── ai/           # ai 보상 추천 로직
+│   │       │   ├── auth/         # 로그인 및 JWT 인증
+│   │       │   ├── classroom/    # 학급 관리
+│   │       │   ├── gacha/        # 확률형 아이템(가챠) 로직
+│   │       │   ├── groupquest/   # 단체퀘스트 CRUD 및 상태 관리
+│   │       │   ├── notification/ # 공지 기능
+│   │       │   ├── personalquest/# 개인퀘스트 CRUD 및 상태 관리
+│   │       │   └── raid/         # 협동 레이드 로직
 │   │       ├── global/    # 전역 설정
 │   │       └── ScaBeApplication.groovy
 │   ├── src/main/resources/
